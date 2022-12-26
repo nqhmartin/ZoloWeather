@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
   TouchableHighlight,
+  ScrollView,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -14,6 +15,7 @@ import Geolocation from '@react-native-community/geolocation';
 import {dateBuilder, dayBuilder} from '../../Constants/Home';
 import {useNavigation} from '@react-navigation/native';
 import {weatherConditions} from '../../Utils/weatherConditions';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 const api = {
   key: '8448982401148b809b855618efd23295',
   base: 'https://api.openweathermap.org/data/2.5/',
@@ -25,20 +27,9 @@ const HomeScreen = (props: Props) => {
   const [isLoading, setLoading] = useState(true);
   const [lat, setLat] = useState<any>(16.04140978473951);
   const [lon, setLon] = useState<any>(108.14678398698533);
-  const [weatherDetails, setWeatherDetails] = useState({
-    temp: 0,
-    wea: 'NIL',
-    city: 'NIL',
-    country: 'NIL',
-  });
+  const [weatherDetails, setWeatherDetails] = useState<any>({});
 
-  const [forecast, setForecast] = useState([
-    {key: '1', temp: 0, wea: 'NIL'},
-    {key: '2', temp: 0, wea: 'NIL'},
-    {key: '3', temp: 0, wea: 'NIL'},
-    {key: '4', temp: 0, wea: 'NIL'},
-    {key: '5', temp: 0, wea: 'NIL'},
-  ]);
+  const [forecast, setForecast] = useState<any>({});
 
   let offset = 1;
   const Item = ({title}: any) => (
@@ -80,7 +71,7 @@ const HomeScreen = (props: Props) => {
         }
         setForecast(forecast_);
       });
-  }, []);
+  }, [lat, lon]);
   const search = () => {
     setLoading(true);
     fetch(
@@ -120,6 +111,11 @@ const HomeScreen = (props: Props) => {
       });
   };
   const renderItem = ({item}: any) => <Item title={item.temp} />;
+
+  const _onPressSearch = (data: any, details: any) => {
+    setLat(details.geometry.location.lat);
+    setLon(details.geometry.location.lng);
+  };
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -138,6 +134,24 @@ const HomeScreen = (props: Props) => {
             styles.background,
             {backgroundColor: weatherConditions[weatherDetails.wea]?.color},
           ]}>
+          <View
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 20,
+              width: '90%',
+              zIndex: 1000,
+            }}>
+            <GooglePlacesAutocomplete
+              placeholder="Nhập nơi bạn muốn xem"
+              onPress={(data, details = null) => _onPressSearch(data, details)}
+              query={{
+                key: 'AIzaSyAESrmwiHrqo5vs6OzVH6rhPHJV-znp8YA',
+                language: 'en',
+              }}
+              fetchDetails
+            />
+          </View>
           <Text style={styles.date}>{dateBuilder(new Date())}</Text>
           <Icon
             style={styles.icon}
@@ -149,6 +163,7 @@ const HomeScreen = (props: Props) => {
             size={80}
             color={'white'}
           />
+
           <Text style={styles.temperature}>{weatherDetails.temp}°C</Text>
           <Text style={styles.location}>
             {weatherDetails?.city}, {weatherDetails?.country}
@@ -160,14 +175,6 @@ const HomeScreen = (props: Props) => {
             renderItem={renderItem}
             keyExtractor={item => item.key}
           />
-          <TouchableHighlight
-            style={styles.button}
-            onPress={() => search()}
-            underlayColor="yellow">
-            <View>
-              <Text style={styles.buttonText}>Get weather details</Text>
-            </View>
-          </TouchableHighlight>
         </ImageBackground>
       </View>
     );
