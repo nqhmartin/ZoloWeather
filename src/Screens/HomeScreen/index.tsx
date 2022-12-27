@@ -14,8 +14,8 @@ type Props = {};
 
 const HomeScreen = (props: Props) => {
   const [isLoading, setLoading] = useState(true);
-  const [lat, setLat] = useState<any>(16.047079);
-  const [lon, setLon] = useState<any>(108.20623);
+  const [lat, setLat] = useState<any>(13.0881861);
+  const [lon, setLon] = useState<any>(109.0928764);
   const [weatherDetails, setWeatherDetails] = useState<any>({});
   const [forecast, setForecast] = useState<any>({});
   let offset = 1;
@@ -51,6 +51,7 @@ const HomeScreen = (props: Props) => {
     )
       .then(res => res.json())
       .then(data => {
+        console.log(data);
         setWeatherDetails({
           temp: Math.round(data.main.temp),
           wea: data.weather[0].main,
@@ -81,6 +82,8 @@ const HomeScreen = (props: Props) => {
   }, [lat, lon]);
   const renderItem = ({item}: any) => <Item title={item.temp} />;
   const _onPressSearch = (data: any, details: any) => {
+    console.log('🚀 ~ file: index.tsx:158 ~ HomeScreen ~ details', details);
+
     setLat(details.geometry.location.lat);
     setLon(details.geometry.location.lng);
   };
