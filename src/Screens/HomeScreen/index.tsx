@@ -1,11 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import {ImageBackground, FlatList, Text, View, StyleSheet} from 'react-native';
+import {
+  ImageBackground,
+  FlatList,
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  NativeModules,
+} from 'react-native';
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geolocation from '@react-native-community/geolocation';
 import {dateBuilder, dayBuilder} from '../../Constants/Home';
 import {weatherConditions} from '../../Utils/weatherConditions';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+const {MiniAppViewManager} = NativeModules;
+
 const api = {
   key: '8448982401148b809b855618efd23295',
   base: 'https://api.openweathermap.org/data/2.5/',
@@ -82,8 +94,6 @@ const HomeScreen = (props: Props) => {
   }, [lat, lon]);
   const renderItem = ({item}: any) => <Item title={item.temp} />;
   const _onPressSearch = (data: any, details: any) => {
-    console.log('🚀 ~ file: index.tsx:158 ~ HomeScreen ~ details', details);
-
     setLat(details.geometry.location.lat);
     setLon(details.geometry.location.lng);
   };
@@ -108,8 +118,37 @@ const HomeScreen = (props: Props) => {
           ]}>
           <View
             style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 20,
+              paddingTop: 10,
               position: 'absolute',
-              top: 20,
+              top: 10,
+              left: 10,
+              width: '70%',
+            }}>
+            {MiniAppViewManager ? (
+              <TouchableOpacity
+                onPress={() => {
+                  MiniAppViewManager?.goBack('ZoloWeather');
+                }}>
+                <Ionicons name="chevron-back-outline" size={34} color="white" />
+              </TouchableOpacity>
+            ) : (
+              <Image
+                source={require('../../Assets/Logo1.png')}
+                style={styles.logo}
+                resizeMode="center"
+              />
+            )}
+
+            <Text style={styles.headerText}>Zolo thời tiết</Text>
+          </View>
+          <View
+            style={{
+              position: 'absolute',
+              top: 85,
               left: 20,
               width: '90%',
               zIndex: 1000,
@@ -168,7 +207,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   date: {
-    marginTop: 100,
+    marginTop: 150,
     fontSize: 30,
     fontWeight: '300',
     marginBottom: 10,
@@ -255,5 +294,15 @@ const styles = StyleSheet.create({
     height: 50,
     marginBottom: 200,
     backgroundColor: '#fcf',
+  },
+  logo: {
+    width: 70,
+    height: 70,
+  },
+  headerText: {
+    fontSize: 22,
+    color: 'white',
+    fontStyle: 'italic',
+    fontWeight: 'bold',
   },
 });
