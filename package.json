@@ -7,7 +7,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "bundle-android": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output build/android/main.jsbundle --assets-dest build/android"
   },
   "dependencies": {
     "@types/react-native-vector-icons": "^6.4.12",
