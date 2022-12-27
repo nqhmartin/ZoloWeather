@@ -1,12 +1,12 @@
 export const dayBuilder = (d: any, offset: any) => {
   let days = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
+    'Chủ nhật',
+    'Thứ hai',
+    'Thứ ba',
+    'Thứ tư',
+    'Thứ năm',
+    'Thứ sáu',
+    'Thứ bảy',
   ];
 
   let day = days[(d.getDay() + offset) % 7];
@@ -14,31 +14,31 @@ export const dayBuilder = (d: any, offset: any) => {
 };
 export const dateBuilder = (d: any) => {
   let months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'Tháng 1',
+    'Tháng 2',
+    'Tháng 3',
+    'Tháng 4',
+    'Tháng 5',
+    'Tháng 6',
+    'Tháng 7',
+    'Tháng 8',
+    'Tháng 9',
+    'Tháng 10',
+    'Tháng 11',
+    'Tháng 12',
   ];
   let days = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
+    'Chủ nhật',
+    'Thứ hai',
+    'Thứ ba',
+    'Thứ tư',
+    'Thứ năm',
+    'Thứ sáu',
+    'Thứ bảy',
   ];
   let day = days[d.getDay()];
   let date = d.getDate();
   let month = months[d.getMonth()];
   //let year = d.getFullYear();
-  return `${day}, ${month} ${date}`;
+  return `${day}, ${date}, ${month}`;
 };

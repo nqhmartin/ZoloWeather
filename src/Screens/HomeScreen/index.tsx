@@ -1,19 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {
-  ImageBackground,
-  FlatList,
-  Text,
-  View,
-  StyleSheet,
-  StatusBar,
-  TouchableHighlight,
-  ScrollView,
-} from 'react-native';
+import {ImageBackground, FlatList, Text, View, StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Geolocation from '@react-native-community/geolocation';
 import {dateBuilder, dayBuilder} from '../../Constants/Home';
-import {useNavigation} from '@react-navigation/native';
 import {weatherConditions} from '../../Utils/weatherConditions';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 const api = {
@@ -23,25 +13,42 @@ const api = {
 type Props = {};
 
 const HomeScreen = (props: Props) => {
-  const navigation = useNavigation();
   const [isLoading, setLoading] = useState(true);
-  const [lat, setLat] = useState<any>(16.04140978473951);
-  const [lon, setLon] = useState<any>(108.14678398698533);
+  const [lat, setLat] = useState<any>(16.047079);
+  const [lon, setLon] = useState<any>(108.20623);
   const [weatherDetails, setWeatherDetails] = useState<any>({});
-
   const [forecast, setForecast] = useState<any>({});
-
   let offset = 1;
-  const Item = ({title}: any) => (
-    <View style={styles.item}>
-      <Text style={styles.day}>{dayBuilder(new Date(), offset++)}</Text>
-      <Text style={styles.title}>{title} °C</Text>
-    </View>
-  );
+  const Item = ({title}: any) => {
+    return (
+      <View style={styles.item}>
+        <Text style={styles.day}>{dayBuilder(new Date(), offset++)}</Text>
+        <Text style={styles.title}>{title} °C</Text>
+      </View>
+    );
+  };
 
-  const URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${api.key}`;
+  // useEffect(() => {
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       setLat(Math.round(position.coords.latitude));
+  //       setLon(Math.round(position.coords.longitude));
+  //     },
+  //     error => {
+  //       console.log(error.code, error.message);
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       timeout: 10000,
+  //       maximumAge: 10000,
+  //     },
+  //   );
+  // }, []);
+
   useEffect(() => {
-    fetch(URL)
+    fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${api.key}`,
+    )
       .then(res => res.json())
       .then(data => {
         setWeatherDetails({
@@ -72,46 +79,7 @@ const HomeScreen = (props: Props) => {
         setForecast(forecast_);
       });
   }, [lat, lon]);
-  const search = () => {
-    setLoading(true);
-    fetch(
-      `${api.base}weather?lat=${lat}&lon=${lon}&units=metric&APPID=${api.key}` +
-        process.env.REACT_APP_GOOGLE_API_KEY,
-    )
-      .then(res => res.json())
-      .then(result => {
-        console.log(result);
-        if (result.name !== null) {
-          setWeatherDetails({
-            temp: Math.round(result.main.temp),
-            wea: result.weather[0].main,
-            city: result.name,
-            country: result.sys.country,
-          });
-        } else {
-          navigation.navigate('Home');
-        }
-      });
-    fetch(
-      `${api.base}forecast?lat=${lat}&lon=${lon}&units=metric&APPID=${api.key}`,
-    )
-      .then(res => res.json())
-      .then(result => {
-        setLoading(false);
-        let forecast_: any[] = [];
-        for (let index = 7, k = 1; index < result.cnt; index += 8, k++) {
-          let data = {
-            key: k,
-            temp: Math.round(result.list[index].main.temp),
-            wea: result.list[index].weather[0].main,
-          };
-          forecast_.push(data);
-        }
-        setForecast(forecast_);
-      });
-  };
   const renderItem = ({item}: any) => <Item title={item.temp} />;
-
   const _onPressSearch = (data: any, details: any) => {
     setLat(details.geometry.location.lat);
     setLon(details.geometry.location.lng);
@@ -130,6 +98,7 @@ const HomeScreen = (props: Props) => {
     return (
       <View style={styles.container}>
         <ImageBackground
+          source={weatherConditions[weatherDetails.wea]?.background}
           style={[
             styles.background,
             {backgroundColor: weatherConditions[weatherDetails.wea]?.color},
@@ -143,11 +112,12 @@ const HomeScreen = (props: Props) => {
               zIndex: 1000,
             }}>
             <GooglePlacesAutocomplete
-              placeholder="Nhập nơi bạn muốn xem"
+              styles={{textInput: {color: '#000000'}}}
+              placeholder="Nhập tỉnh/thành phố bạn muốn xem"
               onPress={(data, details = null) => _onPressSearch(data, details)}
               query={{
                 key: 'AIzaSyAESrmwiHrqo5vs6OzVH6rhPHJV-znp8YA',
-                language: 'en',
+                language: 'vi',
               }}
               fetchDetails
             />
@@ -168,12 +138,16 @@ const HomeScreen = (props: Props) => {
           <Text style={styles.location}>
             {weatherDetails?.city}, {weatherDetails?.country}
           </Text>
-          <Text style={styles.weatherType}>{weatherDetails?.wea}</Text>
+          <Text style={styles.weatherType}>
+            {weatherConditions[weatherDetails?.wea]?.title}
+          </Text>
           <FlatList
             style={styles.flatList}
             data={forecast}
             renderItem={renderItem}
             keyExtractor={item => item.key}
+            ListFooterComponent={() => <View style={{paddingBottom: 50}} />}
+            ListHeaderComponent={() => <View style={{paddingTop: 10}} />}
           />
         </ImageBackground>
       </View>
@@ -189,7 +163,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignContent: 'center',
-    marginTop: StatusBar.currentHeight || 0,
   },
   date: {
     marginTop: 100,
@@ -236,7 +209,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   item: {
-    backgroundColor: 'white',
     opacity: 0.9,
     padding: 18,
     marginVertical: 7,
@@ -245,6 +217,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'space-between',
+    shadowColor: 'black',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
+    elevation: 5,
+    backgroundColor: '#FFFFFF',
   },
   title: {
     fontSize: 20,
